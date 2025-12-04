@@ -203,7 +203,7 @@ const DoughCalculator: React.FC = () => {
             Papa Pietro – Pizza Calculator
             </h1>
             {heroVisible && (
-              <div className="w-full md:w-56 h-32">
+              <div className="w-full md:w-64 lg:w-72 aspect-[3/2]">
                 <div
                   className="relative h-full rounded-xl border border-slate-700/70 shadow-lg shadow-cyan-900/30 overflow-hidden group bg-slate-950/50"
                   ref={heroRef}
