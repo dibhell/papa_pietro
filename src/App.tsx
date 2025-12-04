@@ -136,8 +136,8 @@ const DoughCalculator: React.FC = () => {
     Math.min(100, (currentFlour.protein - 8) * 12)
   );
   const heroImage = `${import.meta.env.BASE_URL}papa-pietro.jpg`;
-  const heroScale = 2.8;
-  const heroTravel = (heroScale - 1) * 60; // percent max travel for full frame coverage
+  const heroScale = 1.6;
+  const heroTravel = (heroScale - 1) * 50; // percent travel matching scale to show pełny kadr przy skrajnych ruchach
 
   const kneadingPlan = useMemo(() => {
     const clamp = (v: number, min: number, max: number) =>
