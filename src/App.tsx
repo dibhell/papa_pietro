@@ -136,8 +136,9 @@ const DoughCalculator: React.FC = () => {
     Math.min(100, (currentFlour.protein - 8) * 12)
   );
   const heroImage = `${import.meta.env.BASE_URL}papa-pietro.jpg`;
-  const heroScale = 3; // mocny zoom, żeby pokryć kadr przy dużym ruchu
-  const heroTravel = 100; // percent travel: pełny zakres od góry do dołu
+  // Skala i zakres tak, by przy skrajnych ruchach dało się zobaczyć cały kadr bez pustych brzegów.
+  const heroScale = 2.2;
+  const heroTravel = ((heroScale - 1) / heroScale) * 50; // percent travel matching scale
 
   const kneadingPlan = useMemo(() => {
     const clamp = (v: number, min: number, max: number) =>
@@ -172,15 +173,11 @@ const DoughCalculator: React.FC = () => {
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
       const xRatio = clamp(
-        (e.clientX - cx) / (window.innerWidth / 2),
+        (e.clientX - cx) / (rect.width / 2),
         -1,
         1
       );
-      const yRatio = clamp(
-        (e.clientY - cy) / (window.innerHeight / 2),
-        -1,
-        1
-      );
+      const yRatio = clamp((e.clientY - cy) / (rect.height / 2), -1, 1);
       setHeroOffset({
         x: xRatio * heroTravel,
         y: yRatio * heroTravel,
