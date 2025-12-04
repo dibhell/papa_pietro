@@ -136,6 +136,8 @@ const DoughCalculator: React.FC = () => {
     Math.min(100, (currentFlour.protein - 8) * 12)
   );
   const heroImage = `${import.meta.env.BASE_URL}papa-pietro.jpg`;
+  const heroScale = 2.8;
+  const heroTravel = (heroScale - 1) * 60; // percent max travel for full frame coverage
 
   const kneadingPlan = useMemo(() => {
     const clamp = (v: number, min: number, max: number) =>
@@ -167,19 +169,21 @@ const DoughCalculator: React.FC = () => {
     const handleMove = (e: MouseEvent) => {
       const rect = heroRef.current?.getBoundingClientRect();
       if (!rect) return;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
       const xRatio = clamp(
-        (e.clientX - rect.left) / rect.width - 0.5,
-        -0.5,
-        0.5
+        (e.clientX - cx) / (window.innerWidth / 2),
+        -1,
+        1
       );
       const yRatio = clamp(
-        (e.clientY - rect.top) / rect.height - 0.5,
-        -0.5,
-        0.5
+        (e.clientY - cy) / (window.innerHeight / 2),
+        -1,
+        1
       );
       setHeroOffset({
-        x: xRatio * 200, // percent travel
-        y: yRatio * 200,
+        x: xRatio * heroTravel,
+        y: yRatio * heroTravel,
       });
     };
 
@@ -212,7 +216,7 @@ const DoughCalculator: React.FC = () => {
                     alt="Papa Pietro dusting pizza with chili flakes"
                     className="w-full h-full object-cover transition-transform duration-200 ease-out"
                     style={{
-                      transform: `translate(${heroOffset.x}%, ${heroOffset.y}%) scale(3.1)`,
+                      transform: `translate(${heroOffset.x}%, ${heroOffset.y}%) scale(${heroScale})`,
                     }}
                     loading="lazy"
                     onError={() => setHeroVisible(false)}
