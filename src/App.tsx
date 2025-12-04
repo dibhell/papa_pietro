@@ -141,7 +141,7 @@ const DoughCalculator: React.FC = () => {
             Papa Pietro – Pizza Calculator
             </h1>
             {heroVisible && (
-              <div className="w-full md:w-56 h-32 rounded-xl overflow-hidden border border-slate-700/70 shadow-lg shadow-cyan-900/30 relative">
+              <div className="w-full md:w-72 lg:w-80 h-44 md:h-48 rounded-2xl overflow-hidden border border-slate-700/70 shadow-lg shadow-cyan-900/30 relative">
                 <img
                   src={heroImage}
                   alt="Papa Pietro dusting pizza with chili flakes"
