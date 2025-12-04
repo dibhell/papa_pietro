@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 
 type YeastId = "instant" | "dry" | "fresh";
 
@@ -90,10 +90,6 @@ const DoughCalculator: React.FC = () => {
   const [flourType, setFlourType] = useState<string>("Caputo Pizzeria (00)");
   const [balls, setBalls] = useState<number>(4);
   const [heroVisible, setHeroVisible] = useState<boolean>(true);
-  const [heroOffset, setHeroOffset] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
   const heroRef = useRef<HTMLDivElement | null>(null);
 
   const [hydration, setHydration] = useState<number>(
@@ -136,9 +132,6 @@ const DoughCalculator: React.FC = () => {
     Math.min(100, (currentFlour.protein - 8) * 12)
   );
   const heroImage = `${import.meta.env.BASE_URL}papa-pietro.jpg`;
-  // Skala i zakres tak, by przy skrajnych ruchach dało się zobaczyć cały kadr bez pustych brzegów.
-  const heroScale = 2.2;
-  const heroTravel = ((heroScale - 1) / heroScale) * 50; // percent travel matching scale
 
   const kneadingPlan = useMemo(() => {
     const clamp = (v: number, min: number, max: number) =>
@@ -163,36 +156,6 @@ const DoughCalculator: React.FC = () => {
     };
   }, [hydration, currentFlour.protein]);
 
-  useEffect(() => {
-    const clamp = (v: number, min: number, max: number) =>
-      Math.min(max, Math.max(min, v));
-
-    const handleMove = (e: MouseEvent) => {
-      const rect = heroRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const xRatio = clamp(
-        (e.clientX - cx) / (rect.width / 2),
-        -1,
-        1
-      );
-      const yRatio = clamp((e.clientY - cy) / (rect.height / 2), -1, 1);
-      setHeroOffset({
-        x: xRatio * heroTravel,
-        y: yRatio * heroTravel,
-      });
-    };
-
-    const handleLeave = () => setHeroOffset({ x: 0, y: 0 });
-
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseleave", handleLeave);
-    return () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseleave", handleLeave);
-    };
-  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
@@ -203,18 +166,15 @@ const DoughCalculator: React.FC = () => {
             Papa Pietro – Pizza Calculator
             </h1>
             {heroVisible && (
-              <div className="w-full md:w-64 lg:w-72 aspect-[3/2]">
+              <div className="w-full md:w-52 lg:w-56 aspect-[2/3]">
                 <div
-                  className="relative h-full rounded-xl border border-slate-700/70 shadow-lg shadow-cyan-900/30 overflow-hidden group bg-slate-950/50"
+                  className="relative h-full rounded-xl border border-slate-700/70 shadow-lg shadow-cyan-900/30 overflow-hidden bg-slate-950/50"
                   ref={heroRef}
                 >
                   <img
                     src={heroImage}
                     alt="Papa Pietro dusting pizza with chili flakes"
-                    className="w-full h-full object-cover transition-transform duration-200 ease-out"
-                    style={{
-                      transform: `translate(${heroOffset.x}%, ${heroOffset.y}%) scale(${heroScale})`,
-                    }}
+                    className="w-full h-full object-contain"
                     loading="lazy"
                     onError={() => setHeroVisible(false)}
                   />
