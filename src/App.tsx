@@ -130,7 +130,7 @@ const DoughCalculator: React.FC = () => {
     0,
     Math.min(100, (currentFlour.protein - 8) * 12)
   );
-  const heroImage = "/papa-pietro.jpg";
+  const heroImage = `${import.meta.env.BASE_URL}papa-pietro.jpg`;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
