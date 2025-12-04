@@ -141,15 +141,19 @@ const DoughCalculator: React.FC = () => {
             Papa Pietro – Pizza Calculator
             </h1>
             {heroVisible && (
-              <div className="w-full md:w-72 lg:w-80 h-44 md:h-48 rounded-2xl overflow-hidden border border-slate-700/70 shadow-lg shadow-cyan-900/30 relative">
-                <img
-                  src={heroImage}
-                  alt="Papa Pietro dusting pizza with chili flakes"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  onError={() => setHeroVisible(false)}
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-900/50 to-transparent" />
+              <div className="w-full md:w-56 h-32">
+                <div className="relative h-full rounded-xl border border-slate-700/70 shadow-lg shadow-cyan-900/30 overflow-hidden group">
+                  <div className="h-full overflow-y-auto no-scrollbar">
+                    <img
+                      src={heroImage}
+                      alt="Papa Pietro dusting pizza with chili flakes"
+                      className="w-full object-contain"
+                      loading="lazy"
+                      onError={() => setHeroVisible(false)}
+                    />
+                  </div>
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-900/40 to-transparent" />
+                </div>
               </div>
             )}
           </div>
