@@ -90,6 +90,10 @@ const DoughCalculator: React.FC = () => {
   const [flourType, setFlourType] = useState<string>("Caputo Pizzeria (00)");
   const [balls, setBalls] = useState<number>(4);
   const [heroVisible, setHeroVisible] = useState<boolean>(true);
+  const [heroOffset, setHeroOffset] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
 
   const [hydration, setHydration] = useState<number>(
     FLOUR_PRESETS["Caputo Pizzeria (00)"].hydration
@@ -132,6 +136,25 @@ const DoughCalculator: React.FC = () => {
   );
   const heroImage = `${import.meta.env.BASE_URL}papa-pietro.jpg`;
 
+  const kneadingPlan = useMemo(() => {
+    const clamp = (v: number, min: number, max: number) =>
+      Math.min(max, Math.max(min, v));
+    const hydrationFactor = Math.max(0, hydration - 60) * 0.35;
+    const proteinFactor = Math.max(0, currentFlour.protein - 11) * 0.8;
+    const kneadMinutes = clamp(6 + hydrationFactor + proteinFactor, 6, 22);
+    const wetDough = hydration >= 67;
+    const folds = wetDough ? 3 : 2;
+    const foldInterval = wetDough ? 12 : 15; // minutes
+    const totalFoldTime = (folds - 1) * foldInterval;
+    return {
+      kneadMinutes: Math.round(kneadMinutes),
+      folds,
+      foldInterval,
+      totalFoldTime,
+      wetDough,
+    };
+  }, [hydration, currentFlour.protein]);
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-4xl glass rounded-2xl p-8 space-y-8 backdrop-blur-xl">
@@ -142,16 +165,29 @@ const DoughCalculator: React.FC = () => {
             </h1>
             {heroVisible && (
               <div className="w-full md:w-56 h-32">
-                <div className="relative h-full rounded-xl border border-slate-700/70 shadow-lg shadow-cyan-900/30 overflow-hidden group">
-                  <div className="h-full overflow-y-auto no-scrollbar">
-                    <img
-                      src={heroImage}
-                      alt="Papa Pietro dusting pizza with chili flakes"
-                      className="w-full object-contain"
-                      loading="lazy"
-                      onError={() => setHeroVisible(false)}
-                    />
-                  </div>
+                <div
+                  className="relative h-full rounded-xl border border-slate-700/70 shadow-lg shadow-cyan-900/30 overflow-hidden group bg-slate-950/50"
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const xRatio = (e.clientX - rect.left) / rect.width - 0.5;
+                    const yRatio = (e.clientY - rect.top) / rect.height - 0.5;
+                    setHeroOffset({
+                      x: xRatio * 10,
+                      y: yRatio * 10,
+                    });
+                  }}
+                  onMouseLeave={() => setHeroOffset({ x: 0, y: 0 })}
+                >
+                  <img
+                    src={heroImage}
+                    alt="Papa Pietro dusting pizza with chili flakes"
+                    className="w-full h-full object-cover transition-transform duration-200 ease-out"
+                    style={{
+                      transform: `translate(${heroOffset.x}px, ${heroOffset.y}px) scale(1.05)`,
+                    }}
+                    loading="lazy"
+                    onError={() => setHeroVisible(false)}
+                  />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-900/40 to-transparent" />
                 </div>
               </div>
@@ -323,6 +359,28 @@ const DoughCalculator: React.FC = () => {
 
             <div className="text-xs text-cyan-300/80">
               Drożdże: {yeastPct}% (auto z TK/TO)
+            </div>
+
+            <div className="text-xs text-slate-200/80 bg-slate-900/40 border border-slate-700/70 rounded-xl p-3 space-y-1">
+              <div className="text-sm font-semibold text-cyan-200">
+                Czas wyrabiania (sugestia)
+              </div>
+              <div>
+                Ręczne wyrabianie:{" "}
+                <span className="text-cyan-300 font-semibold">
+                  {kneadingPlan.kneadMinutes} min
+                </span>
+              </div>
+              <div>
+                Składania/gluten: {kneadingPlan.folds}× co{" "}
+                {kneadingPlan.foldInterval} min (ok.{" "}
+                {kneadingPlan.totalFoldTime} min)
+              </div>
+              <div className="text-[11px] text-slate-400">
+                {kneadingPlan.wetDough
+                  ? "Wysoka hydracja: postaw na składania zamiast długiego wyrabiania."
+                  : "Standardowa hydracja: krótka przerwa + 2 składania wystarczą."}
+              </div>
             </div>
           </div>
         </section>
