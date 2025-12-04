@@ -142,12 +142,16 @@ const DoughCalculator: React.FC = () => {
     const hydrationFactor = Math.max(0, hydration - 60) * 0.35;
     const proteinFactor = Math.max(0, currentFlour.protein - 11) * 0.8;
     const kneadMinutes = clamp(6 + hydrationFactor + proteinFactor, 6, 22);
+    const planetary = clamp(kneadMinutes * 0.55, 4, 15);
+    const handMixer = clamp(kneadMinutes * 0.75, 5, 18);
     const wetDough = hydration >= 67;
     const folds = wetDough ? 3 : 2;
     const foldInterval = wetDough ? 12 : 15; // minutes
     const totalFoldTime = (folds - 1) * foldInterval;
     return {
       kneadMinutes: Math.round(kneadMinutes),
+      planetary: Math.round(planetary),
+      handMixer: Math.round(handMixer),
       folds,
       foldInterval,
       totalFoldTime,
@@ -369,6 +373,19 @@ const DoughCalculator: React.FC = () => {
                 Ręczne wyrabianie:{" "}
                 <span className="text-cyan-300 font-semibold">
                   {kneadingPlan.kneadMinutes} min
+                </span>
+              </div>
+              <div>
+                Mikser planetarny:{" "}
+                <span className="text-cyan-300 font-semibold">
+                  {kneadingPlan.planetary} min
+                </span>{" "}
+                (spirala / hak)
+              </div>
+              <div>
+                Mikser ręczny z hakami:{" "}
+                <span className="text-cyan-300 font-semibold">
+                  {kneadingPlan.handMixer} min
                 </span>
               </div>
               <div>
