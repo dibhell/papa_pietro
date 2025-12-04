@@ -172,8 +172,8 @@ const DoughCalculator: React.FC = () => {
                     const xRatio = (e.clientX - rect.left) / rect.width - 0.5;
                     const yRatio = (e.clientY - rect.top) / rect.height - 0.5;
                     setHeroOffset({
-                      x: xRatio * 10,
-                      y: yRatio * 10,
+                      x: xRatio * 22,
+                      y: yRatio * 22,
                     });
                   }}
                   onMouseLeave={() => setHeroOffset({ x: 0, y: 0 })}
@@ -183,7 +183,7 @@ const DoughCalculator: React.FC = () => {
                     alt="Papa Pietro dusting pizza with chili flakes"
                     className="w-full h-full object-cover transition-transform duration-200 ease-out"
                     style={{
-                      transform: `translate(${heroOffset.x}px, ${heroOffset.y}px) scale(1.05)`,
+                      transform: `translate(${heroOffset.x}px, ${heroOffset.y}px) scale(1.2)`,
                     }}
                     loading="lazy"
                     onError={() => setHeroVisible(false)}
