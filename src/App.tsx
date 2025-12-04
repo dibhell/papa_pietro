@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 type YeastId = "instant" | "dry" | "fresh";
 
@@ -94,6 +94,7 @@ const DoughCalculator: React.FC = () => {
     x: 0,
     y: 0,
   });
+  const heroRef = useRef<HTMLDivElement | null>(null);
 
   const [hydration, setHydration] = useState<number>(
     FLOUR_PRESETS["Caputo Pizzeria (00)"].hydration
@@ -159,6 +160,39 @@ const DoughCalculator: React.FC = () => {
     };
   }, [hydration, currentFlour.protein]);
 
+  useEffect(() => {
+    const clamp = (v: number, min: number, max: number) =>
+      Math.min(max, Math.max(min, v));
+
+    const handleMove = (e: MouseEvent) => {
+      const rect = heroRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const xRatio = clamp(
+        (e.clientX - rect.left) / rect.width - 0.5,
+        -0.5,
+        0.5
+      );
+      const yRatio = clamp(
+        (e.clientY - rect.top) / rect.height - 0.5,
+        -0.5,
+        0.5
+      );
+      setHeroOffset({
+        x: xRatio * 200, // percent travel
+        y: yRatio * 200,
+      });
+    };
+
+    const handleLeave = () => setHeroOffset({ x: 0, y: 0 });
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseleave", handleLeave);
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseleave", handleLeave);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-4xl glass rounded-2xl p-8 space-y-8 backdrop-blur-xl">
@@ -171,16 +205,7 @@ const DoughCalculator: React.FC = () => {
               <div className="w-full md:w-56 h-32">
                 <div
                   className="relative h-full rounded-xl border border-slate-700/70 shadow-lg shadow-cyan-900/30 overflow-hidden group bg-slate-950/50"
-                  onMouseMove={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const xRatio = (e.clientX - rect.left) / rect.width - 0.5;
-                    const yRatio = (e.clientY - rect.top) / rect.height - 0.5;
-                    setHeroOffset({
-                      x: xRatio * 200, // percent for transform translate (full travel)
-                      y: yRatio * 200,
-                    });
-                  }}
-                  onMouseLeave={() => setHeroOffset({ x: 0, y: 0 })}
+                  ref={heroRef}
                 >
                   <img
                     src={heroImage}
