@@ -89,6 +89,7 @@ if (typeof console !== "undefined" && import.meta.env.DEV) {
 const DoughCalculator: React.FC = () => {
   const [flourType, setFlourType] = useState<string>("Caputo Pizzeria (00)");
   const [balls, setBalls] = useState<number>(4);
+  const [heroVisible, setHeroVisible] = useState<boolean>(true);
 
   const [hydration, setHydration] = useState<number>(
     FLOUR_PRESETS["Caputo Pizzeria (00)"].hydration
@@ -129,14 +130,29 @@ const DoughCalculator: React.FC = () => {
     0,
     Math.min(100, (currentFlour.protein - 8) * 12)
   );
+  const heroImage = "/papa-pietro.jpg";
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-3xl glass rounded-2xl p-8 space-y-8 backdrop-blur-xl">
+      <div className="w-full max-w-4xl glass rounded-2xl p-8 space-y-8 backdrop-blur-xl">
         <header className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-wide text-cyan-300 font-display">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <h1 className="text-2xl font-semibold tracking-wide text-cyan-300 font-display">
             Papa Pietro – Pizza Calculator
-          </h1>
+            </h1>
+            {heroVisible && (
+              <div className="w-full md:w-56 h-32 rounded-xl overflow-hidden border border-slate-700/70 shadow-lg shadow-cyan-900/30 relative">
+                <img
+                  src={heroImage}
+                  alt="Papa Pietro dusting pizza with chili flakes"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onError={() => setHeroVisible(false)}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-900/50 to-transparent" />
+              </div>
+            )}
+          </div>
           <p className="text-sm text-slate-400 max-w-2xl">
             Wybierz mąkę (w tym marketowe typy), profil TK/TO i pozwól, żeby
             Papa Pietro wyliczył drożdże i składniki.
