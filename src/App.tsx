@@ -138,19 +138,18 @@ const NumericInput: React.FC<NumericInputProps> = ({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
       />
-      <div className="absolute top-1 right-1 h-[38px] w-10 flex flex-col overflow-hidden rounded-lg border border-slate-700/70 bg-slate-800/60 shadow-inner">
+      <div className="absolute right-1 top-1/2 -translate-y-1/2 h-[40px] w-10 flex flex-col overflow-hidden rounded-lg border border-slate-700/70 bg-slate-800/60 shadow-inner divide-y divide-slate-700/80">
         <button
           type="button"
-          className="flex-1 text-[11px] leading-[18px] text-slate-100 hover:bg-slate-700/70 active:bg-slate-600/70"
+          className="flex-1 flex items-center justify-center text-[11px] leading-none text-slate-100 hover:bg-slate-700/70 active:bg-slate-600/70"
           onClick={() => adjustValue(1)}
           tabIndex={-1}
         >
           &uarr;
         </button>
-        <div className="h-px bg-slate-700/80" />
         <button
           type="button"
-          className="flex-1 text-[11px] leading-[18px] text-slate-100 hover:bg-slate-700/70 active:bg-slate-600/70"
+          className="flex-1 flex items-center justify-center text-[11px] leading-none text-slate-100 hover:bg-slate-700/70 active:bg-slate-600/70"
           onClick={() => adjustValue(-1)}
           tabIndex={-1}
         >
