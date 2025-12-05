@@ -128,7 +128,7 @@ const NumericInput: React.FC<NumericInputProps> = ({
         type="text"
         inputMode="decimal"
         pattern="[0-9]*[.,]?[0-9]*"
-        className={`w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 pr-14 py-2 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 ${className}`}
+        className={`w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 pr-12 py-[10px] text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 ${className}`}
         value={value}
         onChange={(e) => {
           if (e.target.value.includes("-")) return;
@@ -138,10 +138,10 @@ const NumericInput: React.FC<NumericInputProps> = ({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
       />
-      <div className="absolute inset-y-1 right-1 flex flex-col overflow-hidden rounded-lg border border-slate-700/70 bg-slate-800/60">
+      <div className="absolute top-1 right-1 h-[38px] w-10 flex flex-col overflow-hidden rounded-lg border border-slate-700/70 bg-slate-800/60 shadow-inner">
         <button
           type="button"
-          className="flex-1 px-2 text-[11px] leading-[18px] text-slate-100 hover:bg-slate-700/70 active:bg-slate-600/70"
+          className="flex-1 text-[11px] leading-[18px] text-slate-100 hover:bg-slate-700/70 active:bg-slate-600/70"
           onClick={() => adjustValue(1)}
           tabIndex={-1}
         >
@@ -150,7 +150,7 @@ const NumericInput: React.FC<NumericInputProps> = ({
         <div className="h-px bg-slate-700/80" />
         <button
           type="button"
-          className="flex-1 px-2 text-[11px] leading-[18px] text-slate-100 hover:bg-slate-700/70 active:bg-slate-600/70"
+          className="flex-1 text-[11px] leading-[18px] text-slate-100 hover:bg-slate-700/70 active:bg-slate-600/70"
           onClick={() => adjustValue(-1)}
           tabIndex={-1}
         >
