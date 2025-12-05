@@ -180,11 +180,11 @@ const CircularTitle: React.FC = () => {
         </defs>
         <text className="fill-current font-semibold tracking-[0.25em] text-[11px] md:text-[14px] uppercase">
           <textPath href={`#${pathId}`} startOffset="0%">
-            Papa Pietro • Pizza Calculator •
+            • Papa Pietro • Pizza Calculator •
           </textPath>
         </text>
       </svg>
-      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-cyan-500/15 border border-cyan-400/40 flex items-center justify-center text-3xl md:text-4xl shadow-lg shadow-cyan-900/30">
+      <div className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center text-4xl md:text-5xl">
         🍕
       </div>
       <span className="sr-only">Papa Pietro Pizza Calculator</span>
