@@ -60,6 +60,107 @@ function computeYeastPct(
   return Number((instantPct * factor).toFixed(3));
 }
 
+const normalizeInputValue = (value: string, min = 0) => {
+  if (value.trim() === "") return "";
+
+  const sanitized = value.replace(",", ".");
+  const parsed = Number(sanitized);
+
+  if (!Number.isFinite(parsed)) return "";
+
+  return Math.max(min, parsed).toString();
+};
+
+const toNumberValue = (value: string, min = 0) => {
+  const parsed = Number(value.replace(",", "."));
+  if (!Number.isFinite(parsed)) return min;
+  return Math.max(min, parsed);
+};
+
+type NumericInputProps = {
+  value: string;
+  onChange: (value: string) => void;
+  min?: number;
+  step?: number;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "value" | "onChange">;
+
+const NumericInput: React.FC<NumericInputProps> = ({
+  value,
+  onChange,
+  min = 0,
+  step = 1,
+  className = "",
+  ...inputProps
+}) => {
+  const touchStartY = useRef<number | null>(null);
+
+  const adjustValue = (direction: 1 | -1) => {
+    const base = Number(value.replace(",", "."));
+    const safeBase = Number.isFinite(base) ? base : 0;
+    const next = Math.max(min, Number((safeBase + direction * step).toFixed(2)));
+    onChange(next.toString());
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
+    if (document.activeElement !== e.currentTarget) return;
+    e.preventDefault();
+    adjustValue(e.deltaY < 0 ? 1 : -1);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLInputElement>) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLInputElement>) => {
+    if (touchStartY.current === null) return;
+    const deltaY = touchStartY.current - e.touches[0].clientY;
+    if (Math.abs(deltaY) > 16) {
+      adjustValue(deltaY > 0 ? 1 : -1);
+      touchStartY.current = e.touches[0].clientY;
+      e.preventDefault();
+    }
+  };
+
+  return (
+    <div className="relative">
+      <input
+        {...inputProps}
+        type="text"
+        inputMode="decimal"
+        pattern="[0-9]*[.,]?[0-9]*"
+        className={`w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 pr-14 py-2 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 ${className}`}
+        value={value}
+        onChange={(e) => {
+          if (e.target.value.includes("-")) return;
+          onChange(normalizeInputValue(e.target.value, min));
+        }}
+        onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+      />
+      <div className="absolute inset-y-1 right-1 flex flex-col overflow-hidden rounded-lg border border-slate-700/70 bg-slate-800/60">
+        <button
+          type="button"
+          className="flex-1 px-2 text-[11px] leading-[18px] text-slate-100 hover:bg-slate-700/70 active:bg-slate-600/70"
+          onClick={() => adjustValue(1)}
+          tabIndex={-1}
+        >
+          &uarr;
+        </button>
+        <div className="h-px bg-slate-700/80" />
+        <button
+          type="button"
+          className="flex-1 px-2 text-[11px] leading-[18px] text-slate-100 hover:bg-slate-700/70 active:bg-slate-600/70"
+          onClick={() => adjustValue(-1)}
+          tabIndex={-1}
+        >
+          &darr;
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Proste "testy" computeYeastPct do ręcznej weryfikacji w konsoli podczas dev
 if (typeof console !== "undefined" && import.meta.env.DEV) {
   const yeastTestCases: {
@@ -88,21 +189,33 @@ if (typeof console !== "undefined" && import.meta.env.DEV) {
 
 const DoughCalculator: React.FC = () => {
   const [flourType, setFlourType] = useState<string>("Caputo Pizzeria (00)");
-  const [balls, setBalls] = useState<number>(4);
+  const [ballsInput, setBallsInput] = useState<string>("4");
   const [heroVisible, setHeroVisible] = useState<boolean>(true);
   const heroRef = useRef<HTMLDivElement | null>(null);
 
-  const [hydration, setHydration] = useState<number>(
-    FLOUR_PRESETS["Caputo Pizzeria (00)"].hydration
+  const [hydrationInput, setHydrationInput] = useState<string>(
+    FLOUR_PRESETS["Caputo Pizzeria (00)"].hydration.toString()
   );
-  const [saltPct, setSaltPct] = useState<number>(2.8);
-  const [oilPct, setOilPct] = useState<number>(2);
+  const [saltPctInput, setSaltPctInput] = useState<string>("2.8");
+  const [oilPctInput, setOilPctInput] = useState<string>("2");
   const [yeastType, setYeastType] = useState<YeastId>("instant");
 
-  const [tkHours, setTkHours] = useState<number>(24);
-  const [toHours, setToHours] = useState<number>(2);
-  const [tkTemp, setTkTemp] = useState<number>(4);
-  const [toTemp, setToTemp] = useState<number>(22);
+  const [tkHoursInput, setTkHoursInput] = useState<string>("24");
+  const [toHoursInput, setToHoursInput] = useState<string>("2");
+  const [tkTempInput, setTkTempInput] = useState<string>("4");
+  const [toTempInput, setToTempInput] = useState<string>("22");
+
+  const balls = useMemo(() => toNumberValue(ballsInput, 1), [ballsInput]);
+  const hydration = useMemo(
+    () => toNumberValue(hydrationInput),
+    [hydrationInput]
+  );
+  const saltPct = useMemo(() => toNumberValue(saltPctInput), [saltPctInput]);
+  const oilPct = useMemo(() => toNumberValue(oilPctInput), [oilPctInput]);
+  const tkHours = useMemo(() => toNumberValue(tkHoursInput), [tkHoursInput]);
+  const toHours = useMemo(() => toNumberValue(toHoursInput), [toHoursInput]);
+  const tkTemp = useMemo(() => toNumberValue(tkTempInput), [tkTempInput]);
+  const toTemp = useMemo(() => toNumberValue(toTempInput), [toTempInput]);
 
   const totalDoughWeight = useMemo(() => balls * 250, [balls]);
 
@@ -156,6 +269,13 @@ const DoughCalculator: React.FC = () => {
     };
   }, [hydration, currentFlour.protein]);
 
+  const ingredients = [
+    { label: "Woda", value: water },
+    { label: "Drożdże", value: yeast },
+    { label: "Mąka", value: flour },
+    { label: "Oliwa", value: oil },
+    { label: "Sól", value: salt },
+  ];
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
@@ -163,7 +283,7 @@ const DoughCalculator: React.FC = () => {
         <header className="space-y-1">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <h1 className="text-2xl font-semibold tracking-wide text-cyan-300 font-display">
-            Papa Pietro – Pizza Calculator
+              Papa Pietro 🍕 Pizza Calculator
             </h1>
             {heroVisible && (
               <div className="w-full md:w-52 lg:w-56 aspect-[2/3]">
@@ -184,8 +304,8 @@ const DoughCalculator: React.FC = () => {
             )}
           </div>
           <p className="text-sm text-slate-400 max-w-2xl">
-            Wybierz mąkę (w tym marketowe typy), profil TK/TO i pozwól, żeby
-            Papa Pietro wyliczył drożdże i składniki.
+            Wybierz mąkę (w tym marketowe typy), profil TK/TO i pozwól, żeby Papa
+            Pietro wyliczył drożdże i składniki.
           </p>
         </header>
 
@@ -201,7 +321,7 @@ const DoughCalculator: React.FC = () => {
                 onChange={(e) => {
                   const v = e.target.value;
                   setFlourType(v);
-                  setHydration(FLOUR_PRESETS[v].hydration);
+                  setHydrationInput(FLOUR_PRESETS[v].hydration.toString());
                 }}
               >
                 {Object.keys(FLOUR_PRESETS).map((key) => (
@@ -221,7 +341,7 @@ const DoughCalculator: React.FC = () => {
                 <span className="text-cyan-300">siła</span>
               </div>
               <p className="mt-1 text-[11px] text-slate-500">
-                Białko: {currentFlour.protein}% (siła mąki) · domyślna hydracja:{" "}
+                Białko: {currentFlour.protein}% (siła mąki) • domyślna hydracja:{" "}
                 {currentFlour.hydration}%
               </p>
             </div>
@@ -230,14 +350,12 @@ const DoughCalculator: React.FC = () => {
               <label className="block text-xs mb-1 text-slate-400">
                 Liczba kulek (po 250 g)
               </label>
-              <input
-                type="number"
-                className="w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-                value={balls}
+              <NumericInput
+                value={ballsInput}
                 min={1}
-                onChange={(e) =>
-                  setBalls(Math.max(1, Number(e.target.value) || 1))
-                }
+                step={1}
+                onChange={setBallsInput}
+                aria-label="Liczba kulek"
               />
               <p className="mt-1 text-[11px] text-slate-500">
                 Łączna masa ciasta: {totalDoughWeight} g
@@ -249,33 +367,33 @@ const DoughCalculator: React.FC = () => {
                 <label className="block text-xs mb-1 text-slate-400">
                   Hydracja %
                 </label>
-                <input
-                  type="number"
-                  className="w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-                  value={hydration}
-                  onChange={(e) => setHydration(Number(e.target.value) || 0)}
+                <NumericInput
+                  value={hydrationInput}
+                  step={0.5}
+                  onChange={setHydrationInput}
+                  aria-label="Hydracja"
                 />
               </div>
               <div>
                 <label className="block text-xs mb-1 text-slate-400">
                   Sól %
                 </label>
-                <input
-                  type="number"
-                  className="w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-                  value={saltPct}
-                  onChange={(e) => setSaltPct(Number(e.target.value) || 0)}
+                <NumericInput
+                  value={saltPctInput}
+                  step={0.1}
+                  onChange={setSaltPctInput}
+                  aria-label="Sól procent"
                 />
               </div>
               <div>
                 <label className="block text-xs mb-1 text-slate-400">
                   Oliwa %
                 </label>
-                <input
-                  type="number"
-                  className="w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-                  value={oilPct}
-                  onChange={(e) => setOilPct(Number(e.target.value) || 0)}
+                <NumericInput
+                  value={oilPctInput}
+                  step={0.1}
+                  onChange={setOilPctInput}
+                  aria-label="Oliwa procent"
                 />
               </div>
             </div>
@@ -305,44 +423,44 @@ const DoughCalculator: React.FC = () => {
                 <label className="block text-xs mb-1 text-slate-400">
                   TK (h)
                 </label>
-                <input
-                  type="number"
-                  className="w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-                  value={tkHours}
-                  onChange={(e) => setTkHours(Number(e.target.value) || 0)}
+                <NumericInput
+                  value={tkHoursInput}
+                  step={0.5}
+                  onChange={setTkHoursInput}
+                  aria-label="TK godziny"
                 />
               </div>
               <div>
                 <label className="block text-xs mb-1 text-slate-400">
                   TK °C
                 </label>
-                <input
-                  type="number"
-                  className="w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-                  value={tkTemp}
-                  onChange={(e) => setTkTemp(Number(e.target.value) || 0)}
+                <NumericInput
+                  value={tkTempInput}
+                  step={0.5}
+                  onChange={setTkTempInput}
+                  aria-label="TK temperatura"
                 />
               </div>
               <div>
                 <label className="block text-xs mb-1 text-slate-400">
                   TO (h)
                 </label>
-                <input
-                  type="number"
-                  className="w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-                  value={toHours}
-                  onChange={(e) => setToHours(Number(e.target.value) || 0)}
+                <NumericInput
+                  value={toHoursInput}
+                  step={0.5}
+                  onChange={setToHoursInput}
+                  aria-label="TO godziny"
                 />
               </div>
               <div>
                 <label className="block text-xs mb-1 text-slate-400">
                   TO °C
                 </label>
-                <input
-                  type="number"
-                  className="w-full bg-slate-900/40 border border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-                  value={toTemp}
-                  onChange={(e) => setToTemp(Number(e.target.value) || 0)}
+                <NumericInput
+                  value={toTempInput}
+                  step={0.5}
+                  onChange={setToTempInput}
+                  aria-label="TO temperatura"
                 />
               </div>
             </div>
@@ -376,8 +494,8 @@ const DoughCalculator: React.FC = () => {
               </div>
               <div>
                 Składania/gluten: {kneadingPlan.folds}× co{" "}
-                {kneadingPlan.foldInterval} min (ok.{" "}
-                {kneadingPlan.totalFoldTime} min)
+                {kneadingPlan.foldInterval} min (ok. {kneadingPlan.totalFoldTime}{" "}
+                min)
               </div>
               <div className="text-[11px] text-slate-400">
                 {kneadingPlan.wetDough
@@ -395,36 +513,17 @@ const DoughCalculator: React.FC = () => {
           </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-3">
-              <div className="text-xs text-slate-400 mb-1">Mąka</div>
-              <div className="text-lg font-semibold text-cyan-200">
-                {format(flour)}
+            {ingredients.map((item) => (
+              <div
+                key={item.label}
+                className="bg-slate-900/50 border border-slate-700 rounded-xl p-3"
+              >
+                <div className="text-xs text-slate-400 mb-1">{item.label}</div>
+                <div className="text-lg font-semibold text-cyan-200">
+                  {format(item.value)}
+                </div>
               </div>
-            </div>
-            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-3">
-              <div className="text-xs text-slate-400 mb-1">Woda</div>
-              <div className="text-lg font-semibold text-cyan-200">
-                {format(water)}
-              </div>
-            </div>
-            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-3">
-              <div className="text-xs text-slate-400 mb-1">Sól</div>
-              <div className="text-lg font-semibold text-cyan-200">
-                {format(salt)}
-              </div>
-            </div>
-            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-3">
-              <div className="text-xs text-slate-400 mb-1">Oliwa</div>
-              <div className="text-lg font-semibold text-cyan-200">
-                {format(oil)}
-              </div>
-            </div>
-            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-3">
-              <div className="text-xs text-slate-400 mb-1">Drożdże</div>
-              <div className="text-lg font-semibold text-cyan-200">
-                {format(yeast)}
-              </div>
-            </div>
+            ))}
           </div>
 
           <p className="mt-3 text-[11px] text-slate-500">
