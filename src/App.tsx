@@ -165,21 +165,26 @@ const CircularTitle: React.FC = () => {
   const pathId = useId();
 
   return (
-    <div className="relative w-36 h-36 shrink-0 flex items-center justify-center text-cyan-300">
-      <svg viewBox="0 0 200 200" className="absolute inset-0" aria-hidden="true">
+    <div className="relative w-48 h-48 md:w-72 md:h-72 shrink-0 flex items-center justify-center text-cyan-300">
+      <svg
+        viewBox="0 0 200 200"
+        className="absolute inset-0"
+        aria-hidden="true"
+      >
         <defs>
           <path
             id={pathId}
-            d="M100,100 m-70,0 a70,70 0 1,1 140,0 a70,70 0 1,1 -140,0"
+            d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0"
+            transform="rotate(-45 100 100)"
           />
         </defs>
-        <text className="fill-current font-semibold tracking-[0.2em] text-[12px] uppercase">
-          <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
+        <text className="fill-current font-semibold tracking-[0.25em] text-[11px] md:text-[14px] uppercase">
+          <textPath href={`#${pathId}`} startOffset="0%">
             Papa Pietro • Pizza Calculator •
           </textPath>
         </text>
       </svg>
-      <div className="w-14 h-14 rounded-full bg-cyan-500/15 border border-cyan-400/40 flex items-center justify-center text-3xl shadow-lg shadow-cyan-900/30">
+      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-cyan-500/15 border border-cyan-400/40 flex items-center justify-center text-3xl md:text-4xl shadow-lg shadow-cyan-900/30">
         🍕
       </div>
       <span className="sr-only">Papa Pietro Pizza Calculator</span>
@@ -307,8 +312,8 @@ const DoughCalculator: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-4xl glass rounded-2xl p-8 space-y-8 backdrop-blur-xl">
         <header className="space-y-1">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-10">
+            <div className="flex items-center gap-6">
               <CircularTitle />
               <h1 className="sr-only">Papa Pietro Pizza Calculator</h1>
             </div>
